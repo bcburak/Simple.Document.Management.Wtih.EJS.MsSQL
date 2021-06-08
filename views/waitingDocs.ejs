@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta name="description" content="" />
+        <meta name="author" content="" />
+        <title>Document Management</title>
+        <script
+        src="https://code.jquery.com/jquery-3.4.1.min.js"
+        integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+        crossorigin="anonymous"></script>
+        <link href="styles.css" rel="stylesheet" />
+        <link href="https://cdn.datatables.net/1.10.20/css/dataTables.bootstrap4.min.css" rel="stylesheet" crossorigin="anonymous" />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/js/all.min.js" crossorigin="anonymous"></script>
+    </head>
+    <body class="sb-nav-fixed">
+        <%- include ('header') %>
+
+        <div id="layoutSidenav">
+            <div id="layoutSidenav_nav">
+                <%- include ('adminNavBar') %>
+
+            </div>
+            <div class="modal fade" id="myModal" role="dialog">
+                <div class="modal-dialog">
+                
+                  <!-- Modal content-->
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <button type="button" class="close" data-dismiss="modal">&times;</button>
+                      <h4 class="modal-title"></h4>
+                    </div>
+                    <div class="modal-body">
+                      <p>Do you want to confirm Document?.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" onclick="confirmDocument()" id="confirmDocument" name="confirmDocument">Yes</button>
+                        <button type="button" class="btn btn-primary" id="notConfirmDoc" name="notConfirmDoc">No</button>
+                    </div>
+                  </div>
+                  
+                </div>
+              </div>
+
+              <div class="modal fade" id="declineModal" role="dialog">
+                <div class="modal-dialog">
+                
+                  <!-- Modal content-->
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <button type="button" class="close" data-dismiss="modal">&times;</button>
+                      <h4 class="modal-title"></h4>
+                    </div>
+                    <div class="modal-body">
+                      <p>Do you want to decline Document?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" onclick="declineDocument()" id="declineDocument" name="declineDocument">Yes</button>
+                        <button type="button" class="btn btn-primary" id="notConfirmDoc" name="notConfirmDoc">No</button>
+                    </div>
+                  </div>
+                  
+                </div>
+              </div>
+            <div id="layoutSidenav_content">
+                <main>
+                    <div class="container-fluid">
+                        <h1 class="mt-4">Tables</h1>
+                        
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <i class="fas fa-table mr-1"></i>
+                               Waiting For Approvement Docs
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                                        <thead>
+                                            <tr>
+                                                <th>Id</th>
+                                                <th>Title</th>
+                                                <th>File Name</th>
+                                                <th>Status</th>
+                                                <th>User Name</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <% for (var i = 0; i < data.length;  i++) { %>
+                                                 <!-- <input type="hidden" id="documentId" value="<%= data[i].Id %>" > -->
+                                                <tr>
+                                                  <td id="documentId"><%= data[i].DocId %></td>
+                                                  <td><%= data[i].Title %></td>
+                                                  <td><a href="<%= `/upload/${data[i].FileName}` %>"><%= data[i].FileName %></a> </td>
+                                             
+                                                  <td>Waiting</td>
+                                                  <td><%= data[i].UserName %></td>
+                                                  <td><button type="button"  data-toggle="modal" data-target="#myModal"  class="btn btn-info">Approve</button>
+                                                    <button type="button"  data-toggle="modal" data-target="#declineModal" class="btn btn-info">Decline</button>
+                                                </td>
+                                                </tr>    
+                                               <% } %>                                          
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+                <%- include ('footer') %>
+               
+            </div>
+        </div>
+
+        <script>
+           
+
+            function confirmDocument() {
+
+                  var documentId = document.getElementById("documentId").innerHTML;
+
+                    // $('.approveClick').off().on('click', function () {
+                        $.ajax({
+                            type: "POST",
+                            url: '/updateDocument',
+                            data: { Id: documentId },
+                            success: function (data) {
+                                $('#myModal').modal('hide');
+                                $('#dataTable').data.reload();
+                                //window.location.href = baseUrl + "/Vehicle";
+                            },
+                            error: function (error) {
+                                //$(".loading").hide;
+                                alert("An error occured");
+                            }
+                        });
+
+                    // });
+                    }
+
+                    function declineDocument() {
+
+                        var documentId = document.getElementById("documentId").innerHTML;
+
+                        // $('.approveClick').off().on('click', function () {
+                            $.ajax({
+                                type: "POST",
+                                url: '/declineDocument',
+                                data: { Id: documentId },
+                                success: function (data) {
+                                    $('#declineModal').modal('hide');
+                                    // $('#dataTable').data.reload();
+                                    //window.location.href = baseUrl + "/Vehicle";
+                                },
+                                error: function (error) {
+                                    //$(".loading").hide;
+                                    alert("An error occured");
+                                }
+                            });
+
+                        // });
+                        }
+        </script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+        <script src="/scripts.js"></script>
+      
+
+        <script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js" crossorigin="anonymous"></script>
+        <script src="https://cdn.datatables.net/1.10.20/js/dataTables.bootstrap4.min.js" crossorigin="anonymous"></script>
+        <script src="assets/demo/datatables-demo.js"></script>
+    </body>
+</html>
